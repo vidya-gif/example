@@ -1,0 +1,121 @@
+#! /bin/bash
+
+#Purpose: For Internship
+#Version: v0.1.0
+#Author: Vidya Samal
+
+# START #
+
+#Test Purpose
+if [ "$1" == "-h" ] ; then
+    echo "Usage: `basename $0` [-h]"
+    exit 0
+fi
+
+
+## SECTION A ##
+
+#--help
+if [ "$1" == "--help" ] ; then
+    echo "Providing you the help. Check man for details"
+    exit 0
+fi
+
+
+#--version
+if [ "$1" == "--version" ] ; then
+    echo "v0.1.0"
+    exit 0
+fi
+
+
+## SECTION B ##
+## PART 1 ##
+
+#memory getinfo
+if [ "$1" == "memory" ] && [ "$2" == "getinfo" ] ; then
+    free
+    exit 0
+fi
+
+
+#cpu getinfo
+if [ "$1" == "cpu" ] && [ "$2" == "getinfo" ] ; then
+    lscpu
+    exit 0
+fi
+
+
+## PART 3 ##
+
+
+#file getinfo -s/--size
+if [ "$1" == "file" ] && [ "$2" == "getinfo" ] && [ "$3" == "-s" ] || [ "$3" == "--size" ]; then
+    ls -lrt $4 | awk '{print $5}'
+    exit 0
+fi
+
+#file getinfo -p/--permissions
+if [ "$1" == "file" ] && [ "$2" == "getinfo" ] && [ "$3" == "-p" ] || [ "$3" == "--permissions" ]; then
+    ls -ld $4 | awk '{print $1}'
+    exit 0
+fi
+
+#file getinfo -o/--owner
+if [ "$1" == "file" ] && [ "$2" == "getinfo" ] && [ "$3" == "-o" ] || [ "$3" == "--owner" ]; then
+    stat -c '%U' $4
+    exit 0
+fi
+
+#file getinfo -m/--last-modified
+if [ "$1" == "file" ] && [ "$2" == "getinfo" ] && [ "$3" == "-m" ] || [ "$3" == "--last-modified" ]; then
+    stat $4 | grep "Modify" | sed 's/Modify://g'
+    exit 0
+fi
+
+#getinfo filename
+if [ "$1" == "file" ] && [ "$2" == "getinfo" ] && [ "$4" == "" ]; then
+    echo "File:      $3"
+    echo "Access:    `ls -ld $3 | awk '{print $1}'`"
+    echo "Size(B):   `ls -lrt $3 | awk '{print $5}'`"
+    echo "Owner:     `stat -c '%U' $3`"
+    echo "Modify:   `stat $3 | grep "Modify" | sed 's/Modify://g'`"
+    exit 0
+fi
+
+
+## PART 2 ##
+
+#user create
+if [ "$1" == "user" ] && [ "$2" == "create" ] ; then
+    useradd $3
+    passwd $3
+    exit 0
+fi
+
+
+#user delete
+if [ "$1" == "user" ] && [ "$2" == "delete" ] ; then
+    userdel $3
+    exit 0
+fi
+
+
+#user list --sudo-only
+if [ "$1" == "user" ] && [ "$2" == "list" ] && [ "$3" == "--sudo-only" ] ; then
+    getent group sudo | cut -d: -f4
+    exit 0
+fi
+
+
+#user list
+if [ "$1" == "user" ] && [ "$2" == "list" ] ; then
+    awk -F: '$2 != "*" && $2 !~ /^!/ { print $1 }' /etc/shadow
+    exit 0
+#for wrong command
+else
+    echo "Wrong Option"
+    exit 0
+fi
+
+# END
